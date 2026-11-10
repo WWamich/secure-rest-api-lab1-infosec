@@ -24,6 +24,58 @@ jobs:
 
       - name: npm audit (fail on high/critical)
         run: npm audit --audit-level=high
+
+  api-tests:
+    runs-on: ubuntu-latest
+    env:
+      JWT_SECRET: ci-only-jwt-secret-0123456789-abcdefghijklmnopqrstuvwxyz
+      DB_PATH: ./ci-test.db
+      PORT: 3000
+      TEST_USER: ci-user
+      TEST_PASS: CiTestPass123!
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - name: Create test user
+        run: npm run seed -- "$TEST_USER" "$TEST_PASS"
+      - name: Start API and run curl tests
+        run: |
+          node src/server.js > server.log 2>&1 &
+          SERVER_PID=$!
+          trap 'kill $SERVER_PID 2>/dev/null || true' EXIT
+          for i in $(seq 1 30); do
+            curl -s -o /dev/null "http://localhost:$PORT/" && break
+            sleep 1
+          done
+          bash tests/api-tests.sh
+      - name: Show server log on failure
+        if: failure()
+        run: cat server.log
+
+  sca-dependency-check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: OWASP Dependency-Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          project: secure-rest-api-lab1-infosec
+          path: .
+          format: ALL
+          out: reports
+          args: >
+            --failOnCVSS 7
+            --nvdApiKey ${{ secrets.NVD_API_KEY }}
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dependency-check-report
+          path: reports
+
   sast-codeql:
     runs-on: ubuntu-latest
     permissions:
