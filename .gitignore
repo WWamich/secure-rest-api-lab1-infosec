@@ -1,0 +1,12 @@
+node_modules/
+npm-debug.log*
+.env
+*.db
+*.db-wal
+*.db-shm
+*.db-journal
+Scripts/
+Lib/
+Include/
+pyvenv.cfg
+.idea/
