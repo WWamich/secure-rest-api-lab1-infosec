@@ -110,18 +110,10 @@ function authenticate(req, res, next) {
 
 ### Отчеты из pipeline
 
-Автотесты (curl):
-
-![API tests](docs/screenshots/api-tests.png)
-
 npm audit:
-
-![npm audit](docs/screenshots/npm-audit.png)
-
+![img_2.png](img_2.png)
 Dependency-check:
-
-![Dependency-Check](docs/screenshots/dependency-check.png)
+![img_1.png](img_1.png)
 
 CodeQL:
-
-![CodeQL](docs/screenshots/codeql.png)
+![img.png](img.png)

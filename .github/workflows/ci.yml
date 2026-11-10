@@ -6,17 +6,17 @@ on:
 
 jobs:
   sca-npm-audit:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
       - run: npm ci
       - name: npm audit report (JSON)
         run: npm audit --json > npm-audit-report.json || true
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: npm-audit-report
@@ -26,7 +26,7 @@ jobs:
         run: npm audit --audit-level=high
 
   api-tests:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     env:
       JWT_SECRET: ci-only-jwt-secret-0123456789-abcdefghijklmnopqrstuvwxyz
       DB_PATH: ./ci-test.db
@@ -34,8 +34,8 @@ jobs:
       TEST_USER: ci-user
       TEST_PASS: CiTestPass123!
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
         with:
           node-version: 24
           cache: npm
@@ -57,9 +57,9 @@ jobs:
         run: cat server.log
 
   sca-dependency-check:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - name: OWASP Dependency-Check
         uses: dependency-check/Dependency-Check_Action@main
         with:
@@ -70,19 +70,19 @@ jobs:
           args: >
             --failOnCVSS 7
             --nvdApiKey ${{ secrets.NVD_API_KEY }}
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v6
         if: always()
         with:
           name: dependency-check-report
           path: reports
 
   sast-codeql:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       security-events: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
       - uses: github/codeql-action/init@v4
         with:
           languages: javascript-typescript
